@@ -1,11 +1,11 @@
 class Tetris{
-	constructor(element){
+	constructor(element,name,uid,avatar){
 		this.element = element;
 		this.canvas = element.querySelector(".tetris");;
 		this.context = this.canvas.getContext('2d');
 		this.context.scale(20,20);
 		this.arena = new Arena(12,20);
-	    this.player = new Player(this);
+	    this.player = new Player(this,name,uid,avatar);
 	    this.player.events.listen('score',score=>{
 			this.updateScore(score);
 		});
@@ -28,6 +28,7 @@ class Tetris{
 		this.drawMaxtrix(this.player.maxtrix, this.player.pos);
 	}
 	drawMaxtrix(maxtrix,offset) {
+		// console.log(maxtrix);
 		maxtrix.forEach((row,y)=>{
 			row.forEach((value,x)=>{
 				if(value!==0){
@@ -43,7 +44,10 @@ class Tetris{
 			player: {
 				maxtrix:this.player.maxtrix,
 				pos: this.player.pos,
-				score: this.player.score
+				score: this.player.score,
+				name: this.player.name,
+				uid:this.player.uid,
+				avatar:this.player.avatar
 			}
 		};
 	}
@@ -54,7 +58,8 @@ class Tetris{
 		this.draw();
 	}
 	updateScore(score){
-		this.element.querySelector(".score").innerText = "SCORE: "+score;
+		console.log(this.player.yourName);
+		this.element.querySelector(".score").innerText = this.player.name+" SCORE: "+score;
 	}
 	run(){
 		this._update();

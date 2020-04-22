@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
+	
 	<title>Tetris Game</title>
+	<link rel="stylesheet" href="index.css">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
 	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
@@ -20,20 +22,78 @@
 		border: solid white 1px;
 	}
 	.player{
-		flex: 1 1 auto;
+		 flex: 1 1 auto;
 	}
+
 	.player.local canvas{
 		border: solid cyan 3px;
 	}
+	#main_name{
+		cursor: pointer;
+	}
 </style>
 <body>
+
+<div id="sign" class="col s12 m6 offset-m3 center-align">
+	<img style="width: 240px" class="rounded-circle" src="https://images.discordapp.net/avatars/560076295527071754/51b6c55286bcb431c27a905b0c25b2ab.png?size=512"
+	 alt="">
+	 <img style="width: 240px" class="rounded-circle" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSrQE08XvO__64hLCzYl71T_uLBoSjY0faazypyr-mqvORbNayCvg&s"
+	 alt="">
+	<br>
+	<br>
+	<br>
+	 <h1 id="main_name">Tetris Game</h1>
+	 <input class="c-checkbox" type="checkbox" id="checkbox">
+	<div class="c-formContainer">
+	<form class="c-form" action="">
+		<input class="c-form__input" id="key" placeholder="Enter code to join a game (6 characters)" type="text" required>
+		<label class="c-form__buttonLabel" for="checkbox">
+		<button class="c-form__button" onclick="join()" type="submit">Send</button>
+		</label>
+		<label class="c-form__toggle" for="checkbox" data-title="Join a game"></label>
+	</form>
+	</div>
+	    <a style="cursor: pointer;" class="oauth-container btn darken-4 white black-text" onclick = "googleSignin()" style="text-transform:none">
+        <div class="left">
+            <img width="20px" style="margin-top:7px; margin-right:8px" alt="Google sign-in" 
+                src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png" />
+        </div>
+        Login with Google
+    </a>
+    <a style="cursor: pointer;" class="oauth-container btn darken-4 white black-text" onclick = "facebookLogin()" style="text-transform:none">
+        <div class="left">
+            <img width="20px" style="margin-top:7px; margin-right:8px" alt="Facebook sign-in" 
+                src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png" />
+        </div>
+        Login with Facebook
+	</a>
+</div>
+<div id="history" >		
+</div>
 	<template id="player-template">
 		<div class="player">
+			
 			<div class="score">SCORE:0</div>
 			<canvas class="tetris" width="240" height="400">
 			</canvas>
 		</div>
 	</template>
+
+  <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+  <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-app.js"></script>
+
+  <!-- If you enabled Analytics in your project, add the Firebase SDK for Analytics -->
+  <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-analytics.js"></script>
+
+  <!-- Add Firebase products that you want to use -->
+  <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-firestore.js"></script>
+  <script type="">
+
+  // ...
+  </script>
+	
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
 	<script src="client/tetris-manager.js"></script>
 	<script src="client/connection-manager.js"></script>
 	<script src="client/arena.js"></script>
@@ -41,5 +101,22 @@
 	<script src="client/player.js"></script>
 	<script src="client/tetris.js"></script>
 	<script src="client/main.js"></script>
+	<script>
+		$(document).ready(function(){
+			console.log(location.href.split("#").length)
+		if(location.href.split("#").length >1){
+			$('.c-form').addClass('d-none');
+			$('#main_name').text(`Joinned to ${location.href.split("#").pop()} click to quit room`)
+		}
+		$('#main_name').click(function(){
+			location.href = location.href.split("#")[0]
+		});
+		$(".c-form__buttonLabel").click(function() {
+			console.log("cc")
+			location.href ="#"+$("#key").val();
+		});
+	});
+
+	</script>
 </body>
 </html>

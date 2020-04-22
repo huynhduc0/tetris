@@ -4,12 +4,12 @@ class TetrisManager{
 		this.instances = new Set;
 		this.template = document.getElementById('player-template');
 	}
-	createPlayer(){
+	createPlayer(name,uid){
 		const element = this.document.importNode(this.template.content,true).children[0];
-		const tetris = new Tetris(element);
+		const tetris = new Tetris(element,name,uid,avatar);
 		this.instances.add(tetris);
 		this.document.body.appendChild(tetris.element);
-		return tetris;
+		return tetris; 
 	}
 	removePlayer(tetris){
 		this.instances.delete(tetris);

@@ -1,9 +1,12 @@
 class Player{
-	constructor(tetris){
+	constructor(tetris,name,uid,avatar){
 		this.pos = {x:5,y:4};
 		this.maxtrix=  null;
 		this.score=0;
-		this.arena = tetris.arena;	
+		this.arena = tetris.arena;
+		this.uid = uid
+		this.avatar = avatar
+		this.name = name;
 		this.dropCounter = 0;
 	    this.dropInterval =1000;
 	    this.events = new Event;
@@ -117,6 +120,7 @@ class Player{
 		console.log(this.pos.x); 
 		if(this.arena.collide(this)){
 			this.arena.clear();
+			this.events.emit('game-over', this.score);
 			alert("GAME OVER!");
 			this.score = 0;
 			this.events.emit('score', this.score);

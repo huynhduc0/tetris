@@ -17,6 +17,7 @@ class Client{
 				client.send(data);
 			}
 		});
+	
 	}
 	send(data){
 		const msg = JSON.stringify(data);

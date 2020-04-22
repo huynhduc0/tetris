@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>hi</title>
+</head>
+<style >
+    html,
+body {
+  width: 100%;
+  height: 100%;
+}
+
+.centered {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  margin: auto;
+}
+
+.luckydraw {
+  width: 500px;
+  height: 500px;
+  
+  background: url(sayhi.png) no-repeat;
+}
+
+.luckydraw__button {
+  width: 96px;
+  height: 74px;
+  top:-28px;
+  background: url(mui.png);
+
+  cursor: pointer;
+}
+</style>
+<body>
+  <div class="luckydraw centered">
+  <div class="centered luckydraw__button js-luckydraw__button"></div>
+</div>
+
+<!-- <script src="http://ajax.useso.com/ajax/libs/jquery/1.7.2/jquery.min.js?ver=3.4.2"></script> -->
+<!-- <script src="http://7lry1k.com1.z0.glb.clouddn.com/jquery.rotate-2.2.js"></script> -->
+<!-- <script src="http://7lry1k.com1.z0.glb.clouddn.com/jquery.easing-1.3.js"></script> -->
+<script
+  src="https://code.jquery.com/jquery-3.4.1.js"
+  integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+  crossorigin="anonymous"></script>
+<script src="jsro.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
+<script >
+  venues = {
+      "116208"  : "Chúc bạn may mắn!",
+      "66271"   : "Hẹn gặp lại!",
+      "5518"    : "Cảm ơn bạn!",
+      "392360"  : "Mất lượt",
+      "2210952" : "Bạn nhận được 1 tràng vỗ tay",
+      "207306"  : "Nguồn hàng giá gốc!",
+      "41457"   : "Voucher 100k!",
+      "101161"  : "Chúc bạn may mắn!",
+      "257424"  : "See again",
+      "512060"  : "Hẹn gặp lại!",
+      "66244"   : "Người tiếp theo!",
+      "352867"  : "Chúc bạn may mắn!",
+      "22493"   : "GOOD LUCK",
+      "268052"  : "Thêm lượt",
+      "5665"    : "THANK YOU!",
+    };
+
+    $(function() {
+
+      var venueContainer = $('#venues ul');
+      $.each(venues, function(key, item) {
+        venueContainer.append(
+          $(document.createElement("li"))
+          .append(
+            $(document.createElement("input")).attr({
+              id:    'venue-' + key
+              ,name:  item
+              ,value: item
+              ,type:  'checkbox'
+              ,checked:true
+            })
+            .change( function() {
+              var cbox = $(this)[0];
+              var segments = wheel.segments;
+              var i = segments.indexOf(cbox.value);
+
+              if (cbox.checked && i == -1) {
+                segments.push(cbox.value);
+
+              } else if ( !cbox.checked && i != -1 ) {
+                segments.splice(i, 1);
+              }
+
+              segments.sort();
+              wheel.update();
+            } )
+
+            ).append(
+            $(document.createElement('label')).attr({
+              'for':  'venue-' + key
+            })
+            .text( item )
+            )
+            )
+      });
+    });
+
+</script>
+<script >
+
+  (function(global, $) {
+  
+  function LuckyDraw() {}
+  
+  var DEFAULT_CONFIG = {
+    rotationTimes: 1,
+    prizeList: {}
+  };
+  
+  var placeholderFilter = function(prize) { return !prize.isPrize; };
+  
+  
+  LuckyDraw.prototype.initialize = function(config) {
+    var _config = $.extend({}, DEFAULT_CONFIG, config);
+      
+    _config.__prizeList = {};
+    _config.prizeList.forEach(function(prize) {
+      _config.__prizeList[prize.angle] = prize;
+    });
+    
+    this.config = _config;
+    this.config.__placeholderList = _config.prizeList.filter(placeholderFilter);
+    this.$luckyDrawButton = _config.$luckyDrawButton;
+    this.lastPrizeAngle = 0;
+    
+    this.bindRotateEvent();
+    
+    return this;
+  };
+  
+  
+  LuckyDraw.prototype.bindRotateEvent = function() {
+    var _this = this;
+    var _startRotationAnimation = this.startRotationAnimation.bind(this);
+    var eventHandler;
+    
+    eventHandler = function() {
+      _this.requestForPrize()
+        .done(_startRotationAnimation)
+        .fail(function(errorMessage) {
+          alert(errorMessage);
+        });
+    };
+    
+    this.$luckyDrawButton.rotate({
+      bind: {
+        click: eventHandler
+      }
+    });
+  };
+  
+  
+  LuckyDraw.prototype.requestForPrize = function() {
+    var prizeList = this.config.__prizeList;
+    var deferred = $.Deferred();
+    
+    this.getPrizeAngle().done(function(angle) {
+      deferred.resolve(prizeList[angle]);
+    }).fail(function(errorMessage) {
+      deferred.reject(errorMessage);
+    });
+    
+    return deferred;
+  };
+  
+  
+  LuckyDraw.prototype.getPrizeAngle = function() {
+    // ---
+    // implement a simple logic of drawing for prize
+    // the child object can override this implementation
+    // ---
+    var deferred = $.Deferred();
+    var prizeList = this.config.prizeList;
+    // produce a random prize index
+    // range: [0, prizeList.length)
+    var prizeIndex = Math.floor(Math.random() * prizeList.length);
+    
+    deferred.resolve(prizeList[prizeIndex].angle);
+    
+    return deferred;
+  };
+  
+  
+  LuckyDraw.prototype.startRotationAnimation = function(prize) {
+    var _this = this;
+    var afterDrawCallback = this.afterDrawCallback;
+    var rotateToAngle = prize.angle;
+    
+    this.$luckyDrawButton.rotate({
+      angle: this.lastPrizeAngle,
+      animateTo: rotateToAngle + this.config.rotationTimes * 360,
+      duration: 5000,
+      callback: function() {
+        // for the callback function
+        // the keyword 'this' refers to the prize object itself
+        // and that object is also passed into it
+        if (afterDrawCallback) afterDrawCallback.call(prize, prize);
+        _this.lastPrizeAngle = rotateToAngle;
+      }
+    });
+  };
+  
+  
+  LuckyDraw.prototype.afterDrawCallback = function() {};
+  
+  
+  LuckyDraw.prototype.getRandomPlaceholderAngle = function() {
+    var placeholderList = this.config.__placeholderList;
+    var placeholderIndex = Math.floor(Math.random() * placeholderList.length);
+    var targetPlaceholder = placeholderList[placeholderIndex];
+    return targetPlaceholder ? targetPlaceholder.angle : 0;
+  };
+  
+  
+  global.LuckyDraw = LuckyDraw;
+  
+})(window, jQuery);
+
+
+// --------------
+// EXAMPLE
+//
+// images from: http://www.jq22.com/yanshi308
+// --------------
+
+var prizeList = [
+   { angle: 248, isPrize: true, message: 'Ăn gì cũng được' },
+   { angle: 338, isPrize: true, message: 'Gì ăn cũng được' },
+   { angle: 420 , isPrize: true, message: 'Cũng là ăn gì cũng được nhưng nằm ở dưới' },
+   { angle: 517 , isPrize: true, message: 'Gì cũng không được'},
+  
+];
+
+
+var luckyDrawPlate = Object.create(LuckyDraw.prototype);
+
+
+luckyDrawPlate.getPrizeAngle = function() {
+  // ---
+  // SERVER
+  // ---
+  // produce a random prize
+  // [0, prizes.length-1]
+  var prizesNum = prizeList.length;
+  var prizeIndex = Math.floor(Math.random() * prizesNum) + 1;
+  var drawResult = {
+    prize: prizeIndex <= 3 ? prizeIndex : 0
+  };
+  // ---
+  
+  // mockup ajax request
+  var deferred = $.Deferred();
+  var drawPlate = this;
+  var prizeIndex = drawResult.prize;
+  var prizeAngle;
+  
+  // implement a logic of the draw
+  switch(prizeIndex) {
+    case 1: case 2: case 3:
+      prizeAngle = prizeList[prizeIndex - 1].angle;
+      break;
+    case 0: default:
+      prizeAngle = drawPlate.getRandomPlaceholderAngle();
+      break;
+  }
+  
+  deferred.resolve(prizeAngle);
+  // if connection timeout or other error occurs:
+  // deferred.reject('connection timeout');
+  
+  return deferred;
+};
+
+
+luckyDrawPlate.afterDrawCallback = function(prize) {
+  // do something to associate the prize record with the user
+  alert(prize.message ? prize.message : 'try again');
+};
+
+
+luckyDrawPlate.initialize({
+  $luckyDrawButton: $('.js-luckydraw__button'),
+  prizeList: prizeList,
+  rotationTimes: 4
+});
+</script>
+</body>
+</html>

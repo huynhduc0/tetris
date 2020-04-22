@@ -33,7 +33,12 @@ class ConnectionManager{
 			};
 			this.send(data);
 		}
-
+		console.log("lets do this");
+		this.send({
+			type:"history",
+				id:sessionId,
+				state: state
+			});
 	}
 	watchEvent(){
 		const local = this.localTetris;
@@ -57,6 +62,12 @@ class ConnectionManager{
 				});
 			});
 		});
+		player.events.listen("game-over", value=>{
+			this.send({
+				type:'game-over',
+				score:value,
+			});
+		});
 		//  this.player.events.listen('pos',pos=>{
 		// 	console.log("POS CHANGED NOW!", pos);
 		// });
@@ -68,7 +79,7 @@ class ConnectionManager{
 		const me = peers.you;
 		const clients = peers.clients.filter(client => me!== client.id);
 		clients.forEach(client =>{
-			console.log(this.peers);
+			console.log(client);
 			if(!this.peers.has(client.id)){
 				const tetris = this.tetrisManager.createPlayer();
 				tetris.unserialize(client.state);
@@ -115,6 +126,16 @@ class ConnectionManager{
 		else if (data.type === "state-update") {
 			// console.log(data);
 			this.updatePeers(data.clientId,data.fragement, data.state);
+		}else if (data.type === "history") {
+			let hs = document.getElementById('history');
+			console.log(hs)
+			let str = "";
+			data.history.map((e)=>{
+				str+=`<span><img style="width:20px;height:20px"  class="rounded" src = ${e.img}>${e.session} - ${e.username} : ${e.score}</span><br>`;
+			});
+			hs.innerHTML = str;
+				console.log(data)
 		}
+			
 	}
 }
